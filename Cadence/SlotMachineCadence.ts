@@ -83,6 +83,8 @@ const slotMachineCadences: RoundsCadences = { roundOne: [], roundTwo: [], roundT
 function slotCadence(symbols: Array<SlotCoordinate>): SlotCadence {
   // Calculate the number of special symbols per column
   const columnCounts: number[] = Array(anticipatorConfig.columnSize).fill(0);
+
+  //map all symbol in each columns
   for (const symbol of symbols) {
     columnCounts[symbol.column]++;
   }
@@ -91,17 +93,23 @@ function slotCadence(symbols: Array<SlotCoordinate>): SlotCadence {
   let anticipationTriggered = false;
   let countTrigger = 0;
 
+  //for each column pass and add the cadence
   for (let i = 0; i < anticipatorConfig.columnSize; i++) {
+    //validate if the antecipation is active and if can be used bacause we have the max use for this
+    //in all push we validate if is first loop if is not get the value from one index later and sum the cadence
     if (anticipationTriggered && countTrigger < anticipatorConfig.maxToAnticipate) {
       cadence.push(
         i === 0 ? 0 : cadence[i - 1] + anticipatorConfig.anticipateCadence
       );
     } else {
+      //default cadence put
       cadence.push(
         i === 0 ? 0 : cadence[i - 1] + anticipatorConfig.defaultCadence
       );
     }
-
+    //count symbol found to see the trigger and validate if we can put the trigger on
+    //so we has some hidden rule, if we found some symbol we start to count int the next loop, like the example
+    // so first we add and after that see the trigger 
     countTrigger += columnCounts[i];
     if (countTrigger >= anticipatorConfig.minToAnticipate) {
       anticipationTriggered = true;
